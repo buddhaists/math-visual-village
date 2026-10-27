@@ -38,8 +38,8 @@ function buildSite(inputRoot) {
   const nav = '<nav aria-label="網站導覽"><a href="/">圖解數學小鎮</a> · <a href="/practice/">解題練習場</a> · <a href="/exams/">全真模擬卷</a></nav>';
   const relatedLinks = list => list.map(u => `<li><a href="/units/${escape(u.slug)}">${escape(u.title)}</a>：${escape(u.sub)}</li>`).join('\n');
   const home = `${nav}\n<h1>${NAME}</h1>\n<p>${DESCRIPTION}</p>
-<h2>用圖像理解高中數學</h2><p>先觀察與猜想，再一步一步看公式如何成立。每個單元都有互動圖像、不同看法與練習，老師也可以使用上課模式。</p>
-<h2>高中數學課程目錄</h2>\n${catalog.regions.map(region => `<section><h3>${escape(region.name)}</h3><ul>${relatedLinks(units.filter(u => u.region === region.id))}</ul></section>`).join('\n')}`;
+<h2>用圖像理解國中數學</h2><p>先觀察與猜想，再一步一步看公式如何成立。每個單元都有互動圖像、不同看法與練習，老師也可以使用上課模式。</p>
+<h2>國中數學課程目錄</h2>\n${catalog.regions.map(region => `<section><h3>${escape(region.name)}</h3><ul>${relatedLinks(units.filter(u => u.region === region.id))}</ul></section>`).join('\n')}`;
 
   function lesson(unit) {
     let cfg;

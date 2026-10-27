@@ -28,15 +28,39 @@
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   });
-  /* 使用者自己打的字（包括對方傳來的）：文字一律跳脫，只有 $…$ 交給 KaTeX */
+  /* 使用者自己打的字（筆記、解題答案、傳過來的）：支援國中生自然輸入，自動轉換為標準數學文字與 KaTeX */
   PR.safeMd = function (s) {
     s = String(s == null ? "" : s);
+    // 自動將常見未加 $ 的 LaTeX 根式、分數或符號轉換包覆，避免國中生看到生硬反斜線語法
+    s = s.replace(/(\\frac\{[^{}]*\}\{[^{}]*\}|\\sqrt\{[^{}]*\}|\\sqrt\b|\\times\b|\\div\b|\\pm\b|\\approx\b|\\le\b|\\ge\b|\\ne\b|\\cdots\b|\\overline\{[^{}]*\})/g, function(m) {
+      return '$' + m + '$';
+    });
+
     var out = "", re = /\$\$([\s\S]+?)\$\$|\$([^$\n]+?)\$/g, last = 0, m;
     while ((m = re.exec(s))) {
       out += esc(s.slice(last, m.index)) + SK.tex(m[1] || m[2], !!m[1]);
       last = re.lastIndex;
     }
-    return (out + esc(s.slice(last))).replace(/\n/g, "<br>");
+    var rest = s.slice(last);
+
+    // 將國中生常用鍵盤符號自動轉換為親切直觀的數學符號（≥, ≤, ≠, ×, 上標次方）
+    var supMap = {
+      '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+      '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
+      'x': 'ˣ', 'n': 'ⁿ', '+': '⁺', '-': '⁻'
+    };
+    rest = esc(rest)
+      .replace(/>=/g, " ≥ ")
+      .replace(/<=/g, " ≤ ")
+      .replace(/!=/g, " ≠ ")
+      .replace(/(\d+)\s*\*\s*(\d+)/g, "$1 × $2")
+      .replace(/([a-zA-Z0-9])\^([0-9xXnN+-]+)/g, function(match, base, exp) {
+        var converted = "";
+        for (var i = 0; i < exp.length; i++) converted += supMap[exp[i]] || exp[i];
+        return base + converted;
+      });
+
+    return (out + rest).replace(/\n/g, "<br>");
   };
   function hash(s) {
     var h = 5381;

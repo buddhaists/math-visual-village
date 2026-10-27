@@ -55,15 +55,16 @@
   var hero = SK.h("section", { class: "home-hero" });
   hero.innerHTML =
     "<div>" +
-    '<p class="kicker">' + SK.icon("sprig") + 'A gentle notebook for math</p>' +
-    "<h1>圖解數學小鎮</h1>" +
+    '<p class="kicker">' + SK.icon("sprig") + 'A gentle notebook for junior high math · 南一版 1上～3下</p>' +
+    "<h1>圖解國中數學小鎮</h1>" +
     '<p class="en">See it, then say it.</p>' +
-    '<p class="intro">每一條公式，都是一張圖先說出來的。在這裡，你會先動手拖一拖、猜一猜，看著圖形一步一步長出公式，再把它寫成符號。沒有計時，也沒有分數，猜錯了反而最有收穫。</p>' +
+    '<p class="intro">涵蓋國中數學完整六冊（1上～3下）全部 60 個核心小節。每一條公式，都是一張圖先說出來的。在這裡，你會先動手拖一拖、猜一猜，看著圖形一步一步長出公式，再把它寫成符號。沒有計時，也沒有分數，猜錯了反而最有收穫。</p>' +
     '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px">' +
     '<a class="btn" href="#town">走進小鎮 ' + SK.icon("arrow") + "</a>" +
-    '<a class="btn ghost" href="units/square-of-sum.html">從第一站開始</a>' +
+    '<a class="btn ghost" href="units/num-line.html">從 1上 第一站開始</a>' +
     '<a class="btn sky" href="practice/index.html">解題練習場</a>' +
-    '<a class="btn sky" href="exams/index.html">全真模擬卷</a></div>' +
+    '<a class="btn sky" href="duo/index.html">雙人解題室</a>' +
+    '<a class="btn sky" href="exams/index.html">會考模擬卷</a></div>' +
     "</div>" +
     '<div class="hero-art">' + heroArt + "</div>";
   main.appendChild(hero);
@@ -94,7 +95,7 @@
     '<p class="muted" style="margin-top:-8px">每一區是一個大概念，每一棟小房子是一條公式。虛線小路代表「這條公式用到了那條公式的想法」。' + (soonN ? "有顏色的房子已經開放，虛線的還在施工中。" : "全部 " + readyN + " 棟小房子都已經開放，點一下就能走進去。") + '</p>';
   var filters = SK.h("div", { class: "filters", role: "group", "aria-label": "依年級篩選" });
   filters.innerHTML = '<span class="lbl">我在學：</span>';
-  var trackKeys = ["all", "10", "A", "B", "J", "Y", "X"];
+  var trackKeys = ["all", "7a", "7b", "8a", "8b", "9a", "9b"];
   var current = "all";
   trackKeys.forEach(function (k) {
     var tr = cat.tracks[k];
@@ -106,7 +107,12 @@
   town.appendChild(filters);
 
   /* 版面：三欄區塊，高度依房子數量自動決定 */
-  var COLS = [["algebra", "vector"], ["series", "space", "prob"], ["function", "trig", "calc"]];
+  function houseLines(title) {
+    var clean = title.replace(/^\d+-\d+[ab]?\s+/, "");
+    if (clean.length > 10) clean = clean.slice(0, 10);
+    return clean.length > 5 ? [clean.slice(0, Math.ceil(clean.length / 2)), clean.slice(Math.ceil(clean.length / 2))] : [clean];
+  }
+  var COLS = [["num", "seq"], ["eq1", "poly", "stat"], ["func", "geom", "circle"]];
   var layout = {}, colBottom = 0;
   COLS.forEach(function (col, ci) {
     var y = 20;
@@ -159,7 +165,7 @@
     } else {
       s("path", { d: "M" + (cx + 26) + " " + yb + " v-20 M" + (cx + 18) + " " + (yb - 26) + " h16 v9 h-16z", fill: "#F1E2B8", stroke: "#9C8C7C", "stroke-width": 1.1 }, a);
     }
-    var lines = u.title.length > 6 ? [u.title.slice(0, Math.ceil(u.title.length / 2)), u.title.slice(Math.ceil(u.title.length / 2))] : [u.title];
+    var lines = houseLines(u.title);
     lines.forEach(function (ln, k) {
       var t = s("text", { x: cx, y: yb + 18 + k * 17, "text-anchor": "middle", "font-size": 14, fill: ready ? C.ink : "#8E8173", "font-weight": ready ? 600 : 400 }, a);
       t.textContent = ln;
@@ -282,7 +288,7 @@
     s("path", { class: "roof", d: "M" + (cx - 31) + " " + (yb - 38) + " Q" + cx + " " + (yb - 74) + " " + (cx + 31) + " " + (yb - 38) + "Z", fill: ready ? "#FDFBF6" : "none", stroke: ink, "stroke-width": 1.3, "stroke-linejoin": "round", "stroke-dasharray": dash }, gH);
     s("path", { d: "M" + (cx - 6) + " " + yb + " V" + (yb - 14) + " a6 6 0 0 1 12 0 V" + yb, fill: ready ? "#F3C8B0" : "none", stroke: ink, "stroke-width": 1.2 }, gH);
     s("circle", { cx: cx + 13, cy: yb - 26, r: 4.4, fill: ready ? "#F1E2B8" : "none", stroke: ink, "stroke-width": 1.1 }, gH);
-    var lines = u.title.length > 5 ? [u.title.slice(0, Math.ceil(u.title.length / 2)), u.title.slice(Math.ceil(u.title.length / 2))] : [u.title];
+    var lines = houseLines(u.title);
     lines.forEach(function (ln, k) {
       var tt = s("text", { x: cx, y: yb + 19 + k * 18, "text-anchor": "middle", "font-size": 15, fill: ready ? C.ink : "#8E8173", "font-weight": 600 }, gH);
       tt.textContent = ln;
@@ -405,7 +411,7 @@
   /* ---------- 已開放的單元 ---------- */
   var feat = SK.h("section", { class: "unit-sec", "aria-label": "已開放的單元" });
   feat.innerHTML = secTitle("已開放的" + zhNum(readyN) + "棟小房子", "Open Houses") +
-    '<p class="muted" style="margin-top:-8px">依建議順序排列：高一 → 11 年級（數 A／數 B）→ 數甲。每一棟都有六站：好奇入口、先猜猜看、看圖推導、換個角度看、天花板挑戰、地圖定位。</p>';
+    '<p class="muted" style="margin-top:-8px">依南一國中數學課本順序排列：1上（七上）→ 1下（七下）→ 2上（八上）→ 2下（八下）→ 3上（九上）→ 3下（九下）。每一棟都有六站：好奇入口、先猜猜看、看圖推導、換個角度看、天花板挑戰、地圖定位。</p>';
   var grid = SK.h("div", { class: "featured" });
   cat.order.forEach(function (slug, i) {
     var u = cat.get(slug), r = cat.region(u.region);

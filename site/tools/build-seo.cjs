@@ -5,8 +5,8 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const ORIGIN = 'https://math-visual-village.pages.dev';
-const NAME = '圖解數學小鎮';
-const DESCRIPTION = '圖解數學小鎮是高中數學互動學習網站，依 108 課綱整理高一、數 A、數 B、數甲、數乙，用圖像一步一步推導公式，並提供單元練習與模擬試題。';
+const NAME = '圖解國中數學小鎮 · 南一版';
+const DESCRIPTION = '圖解國中數學小鎮是國中數學互動學習網站，依 108 課綱南一版整理 1上～3下（七上至九下）共六冊 60 個核心單元，用圖像一步一步推導公式，並提供單元練習場與各冊互動題庫。';
 const escape = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 function plain(value) {
   return String(value ?? '').replace(/<br\s*\/?>|<\/p>/gi, '\n').replace(/<[^>]*>/g, '')

@@ -26,8 +26,17 @@ const papers = /SK\.PAPERS\s*=\s*(\{[\s\S]*?\n  \});/.exec(core);
 if (!papers) throw new Error('Cannot locate the official paper links');
 box.SK.PAPERS = vm.runInNewContext('(' + papers[1] + ')');
 vm.runInNewContext(read('assets/js/past-bank.js'), box);
-vm.runInNewContext(read('assets/js/bank-2026-10.js'), box);
-const originals = JSON.parse(execFileSync('python', [path.join(__dirname, 'house_practice_questions.py')], { encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 }));
+if (fs.existsSync(path.join(source, 'assets/js/bank-2026-10.js'))) {
+  vm.runInNewContext(read('assets/js/bank-2026-10.js'), box);
+}
+
+let originals = [];
+try {
+  originals = JSON.parse(execFileSync('python', [path.join(__dirname, 'house_practice_questions.py')], { encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 }));
+} catch (e) {
+  originals = [];
+}
+
 function hash(text) { let h = 5381; for (let i = 0; i < text.length; i++) h = ((h << 5) + h + text.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
 function keyOf(card) {
   const match = /^\s*<b>((?:\(\d\))+)<\/b>/.exec(card.ans || '');
@@ -41,25 +50,61 @@ function cardItem(c, slug, id, kind) {
 }
 const dependent = /開頭的|開頭所|開頭那|上面|上圖|下圖|圖中|第\s*\d\s*[、，與和]\s*\d\s*步|回頭看第|今天的方法|遊戲 A、B|在這張圖/;
 const sets = {}, report = [], missing = [];
+
 for (const unit of box.CATALOG.units.filter(u => u.ready)) {
   const slug = unit.slug, cfg = configs[slug], candidates = [];
-  for (const q of originals.filter(c => c.slug === slug)) candidates.push({ item: q, rank: -1 });
-  for (const d of cfg.drills || []) for (const t of d.tries || []) candidates.push({ rank: 0, item: {
-    id: slug + '.t.' + hash(t.q), slug, kind: 'try', src: '換你算 · ' + d.title.replace(/<[^>]*>/g, ''),
-    q: t.q, opts: null, key: null, see: '', ways: [t.hint && { t: '先想一想', html: t.hint }].filter(Boolean),
-    trap: d.edge || '', trapTitle: '條件與反例', ans: t.ans, ansTitle: '答案'
-  } });
-  for (const c of box.SK.BANK.filter(c => c.units.includes(slug))) candidates.push({
+  for (const q of originals.filter(c => c.slug === slug)) candidates.push({ item: q, rank: -3 });
+
+  // 1. Guess Question (Warm-up)
+  if (cfg && cfg.guess && cfg.guess.q) {
+    const tAns = (cfg.guess.options && (cfg.guess.options.find(o => o.truth) || cfg.guess.options[0])) || {};
+    candidates.push({ rank: -2, item: {
+      id: slug + '.g.' + hash(cfg.guess.q), slug, kind: 'warmup', src: '觀念快問 · ' + unit.title,
+      q: cfg.guess.q, opts: cfg.guess.options ? cfg.guess.options.map(o => o.t) : null, key: null, see: '動動腦想想核心觀念。',
+      ways: [{ t: '觀念解析', html: tAns.explain || '' }], trap: '', trapTitle: '', ans: tAns.t || '', ansTitle: '答案'
+    } });
+  }
+
+  // 2. Demo Step-by-step
+  for (const d of (cfg && cfg.drills) || []) {
+    if (d.demo && d.demo.q) {
+      candidates.push({ rank: -1, item: {
+        id: slug + '.d.' + hash(d.demo.q), slug, kind: 'demo', src: '範例觀摩 · ' + (d.title || unit.title).replace(/<[^>]*>/g, ''),
+        q: d.demo.q, opts: null, key: null, see: '先看標準解題示範步驟。',
+        ways: [{ t: '解題步驟', html: (d.demo.steps || []).join('<br>') }], trap: '', trapTitle: '',
+        ans: (d.demo.steps ? d.demo.steps[d.demo.steps.length - 1] : '見詳解'), ansTitle: '答案'
+      } });
+    }
+    // 3. Tries
+    for (const t of d.tries || []) {
+      const ansText = (t.options && t.ans !== undefined) ? t.options[t.ans] : (t.ans !== undefined ? String(t.ans) : '');
+      candidates.push({ rank: 0, item: {
+        id: slug + '.t.' + hash(t.q), slug, kind: 'try', src: '換你算 · ' + (d.title || unit.title).replace(/<[^>]*>/g, ''),
+        q: t.q, opts: t.options || null, key: null, see: '',
+        ways: [t.hint && { t: '先想一想', html: t.hint }, t.explain && { t: '詳解', html: t.explain }].filter(Boolean),
+        trap: d.edge || '', trapTitle: '條件與反例', ans: ansText, ansTitle: '答案'
+      } });
+    }
+  }
+
+  // 4. Challenges
+  for (const c of (cfg && cfg.challenges) || []) {
+    const cAns = (c.options && c.ans !== undefined) ? c.options[c.ans] : (c.ans !== undefined ? String(c.ans) : (c.idea || ''));
+    candidates.push({ rank: 1, item: {
+      id: slug + '.c.' + hash(c.q), slug, kind: 'challenge', src: '天花板挑戰 · ' + unit.title,
+      q: c.q, opts: c.options || null, key: null, see: '',
+      ways: [c.hint && { t: '給我一點提示', html: c.hint }, c.explain && { t: '詳細解析', html: c.explain }].filter(Boolean),
+      trap: '', trapTitle: '', ans: cAns, ansTitle: '看一種想法（不是唯一答案）'
+    } });
+  }
+
+  for (const c of (box.SK.BANK || []).filter(c => c.units && c.units.includes(slug))) candidates.push({
     item: cardItem(c, slug, 'q.' + c.id, c.kind), rank: { 基礎: 1, 中: 2, 難: 3 }[c.diff] ?? 2
   });
-  for (const c of [...(box.SK.PAST_BY_UNIT[slug] || []), ...(cfg.where.past || [])]) candidates.push({
+  for (const c of [...(box.SK.PAST_BY_UNIT[slug] || []), ...(cfg && cfg.where && cfg.where.past ? (Array.isArray(cfg.where.past) ? cfg.where.past : []) : [])]) candidates.push({
     item: cardItem(c, slug, 'p.' + hash(c.src + '|' + c.q), 'past'), rank: 3
   });
-  for (const c of cfg.challenges || []) candidates.push({ rank: 4, item: {
-    id: slug + '.c.' + hash(c.q), slug, kind: 'challenge', src: '天花板挑戰 · ' + unit.title,
-    q: c.q, opts: null, key: null, see: '', ways: c.hint ? [{ t: '給我一點提示', html: c.hint }] : [],
-    trap: '', trapTitle: '', ans: c.idea || '', ansTitle: '看一種想法（不是唯一答案）'
-  } });
+
   const seen = new Set(), questions = new Set();
   const usable = candidates.sort((a, b) => a.rank - b.rank).filter(({ item }) => {
     if (!item.ans || dependent.test(item.q + item.ans) || seen.has(item.id) || questions.has(item.q)) return false;
@@ -69,6 +114,7 @@ for (const unit of box.CATALOG.units.filter(u => u.ready)) {
   sets[slug] = usable.slice(0, 5).map(({ item }) => item);
   report.push({ slug, title: unit.title, ids: sets[slug].map(c => c.id), sources: sets[slug].map(c => c.src) });
 }
+
 if (missing.length) { console.error(JSON.stringify({ missing }, null, 2)); process.exit(1); }
 const renderer = fs.readFileSync(path.join(__dirname, 'house-practice-renderer.js'), 'utf8');
 const output = '/* Generated by tools/build-house-practice.cjs. Original practice items per house; official examination text excluded. */\n' +

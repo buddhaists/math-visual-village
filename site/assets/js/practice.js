@@ -87,7 +87,7 @@
       '<p class="muted pr-tip">條件有哪些？主角是誰？像不像哪張你看過的圖或公式？寫一句就好，沒有對錯。</p>' +
       (rec && rec.o ? '<p class="pr-last">上次你寫：' + safeMd(rec.o) + "</p>" : "") +
       (pick.book && PR.book.get(it.id) && PR.book.get(it.id).note ? '<p class="pr-last">你在錯題本提醒自己：' + safeMd(PR.book.get(it.id).note) + "</p>" : "") +
-      '<textarea id="pr-obs" class="pr-ta" rows="3" placeholder="我看到……（可以用 $x^2$ 打公式）"></textarea>' +
+      '<textarea id="pr-obs" class="pr-ta" rows="3" placeholder="請寫下你看見的題目條件、關鍵數字或解題線索（寫一句就好，沒有對錯）……"></textarea>' +
       '<div class="pr-row"><button class="btn small" type="button" disabled data-act="obs">寫好了，開始動手 ' + SK.icon("arrow") + "</button></div></div>";
     var ta = stage.querySelector("#pr-obs"), go = stage.querySelector('[data-act="obs"]');
     ta.oninput = function () { go.disabled = ta.value.trim().length < 2; };
@@ -103,7 +103,7 @@
         (it.opts
           ? '<p class="pr-q">' + PR.prompt(it) + "</p>"
           : '<label class="pr-q" for="pr-ans">寫下你的答案或關鍵算式</label>' +
-            '<textarea id="pr-ans" class="pr-ta" rows="4" placeholder="可以用 $\\frac{a}{b}$、$x^2$ 打公式"></textarea>' +
+            '<textarea id="pr-ans" class="pr-ta" rows="4" placeholder="在此寫下你的答案或計算過程（例如：x = 16；分數可用 3/4、次方可用 x^2）……"></textarea>' +
             '<div class="pr-preview muted" aria-live="polite"></div>') +
         '<div class="pr-hints"></div>' +
         '<div class="pr-row">' +
@@ -146,7 +146,8 @@
         ans.oninput = function () {
           st.text = ans.value.trim();
           submit.disabled = !st.text;
-          pv.innerHTML = /\$/.test(st.text) ? "預覽：" + safeMd(st.text) : "";
+          var rendered = safeMd(st.text);
+          pv.innerHTML = (rendered && (rendered !== esc(st.text) || /\$/.test(st.text))) ? "預覽：" + rendered : "";
         };
       }
       submit.onclick = function () { reveal(); };

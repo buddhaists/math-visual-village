@@ -512,7 +512,7 @@
       '<aside class="duo-side"><h3 class="hand">討論</h3><div class="duo-chat" role="log" aria-live="polite"></div>' +
       '<form class="duo-say" autocomplete="off"><textarea rows="2" maxlength="' + CHAT_MAX + '" aria-label="訊息"></textarea>' +
       '<button class="btn small" type="submit">送出</button></form>' +
-      '<p class="muted duo-hint">可以用 $x^2$ 打公式。不要傳個人資料。</p></aside></div>' +
+      '<p class="muted duo-hint">請寫幾句個人觀察或題目條件。</p></aside></div>' +
       '<dialog class="duo-dialog"></dialog>';
     var copy = view.querySelector('[data-act="copy"]');
     if (copy) copy.onclick = function () {
@@ -609,7 +609,7 @@
           '<div class="pr-block see"><label class="pr-q" for="duo-obs">先別動筆：你看到什麼？</label>' +
           '<p class="muted pr-tip">各自寫，兩人都送出才會同時揭曉。條件有哪些？主角是誰？像不像哪張你看過的圖？</p>' +
           (rec && rec.o ? '<p class="pr-last">上次你寫：' + safeMd(rec.o) + "</p>" : "") +
-          '<textarea id="duo-obs" class="pr-ta" rows="3" placeholder="我看到……（可以用 $x^2$ 打公式）"></textarea>' +
+          '<textarea id="duo-obs" class="pr-ta" rows="3" placeholder="請寫下你看見的題目條件、關鍵數字或解題線索……"></textarea>' +
           '<div class="pr-row"><button class="btn small" type="button" disabled data-act="obs">寫好了，送出</button>' +
           '<span class="duo-wait muted"></span></div></div>';
         var ta = stageEl.querySelector("#duo-obs"), go = stageEl.querySelector('[data-act="obs"]');
@@ -646,7 +646,7 @@
         stageEl.innerHTML = compare +
           (it.opts ? '<p class="pr-q">' + PR.prompt(it) + "</p>"
             : '<label class="pr-q" for="duo-ans">寫下你的答案或關鍵算式</label>' +
-              '<textarea id="duo-ans" class="pr-ta" rows="3" placeholder="可以用 $\\frac{a}{b}$、$x^2$ 打公式"></textarea>' +
+              '<textarea id="duo-ans" class="pr-ta" rows="3" placeholder="在此寫下你的答案或計算過程（例如：(48, 72) = 24、[48, 72] = 144；分數可用 3/4、次方可用 x^2）……"></textarea>' +
               '<div class="pr-preview muted"></div>') +
           '<div class="pr-hints"></div>' +
           '<div class="pr-row"><button class="btn small" type="button" disabled data-act="submit">交出答案</button>' +
@@ -774,7 +774,7 @@
       var prompts = {
         obs: ["先別動筆：你看到什麼？", "條件有哪些？主角是誰？像不像哪張你看過的圖？寫好交給下一棒。", "我看到……"],
         plan: ["解題計畫：打算怎麼算？", "寫下要用的公式或關鍵的一步，不用算到最後。第 3 棒會照著你的計畫作答。", "先……再……；關鍵式是……"],
-        ans: ["交出答案", "照著計畫算出答案。交出後，對方確認了才會對答案。", "可以用 $\\frac{a}{b}$、$x^2$ 打公式"]
+        ans: ["交出答案", "請寫下計算與最終答案。送出後，雙方確認了才會對答案。", "在此寫下你的答案或計算過程（例如：x = 16，分數可用 3/4）"]
       }[field];
       html += (rejected ? '<p class="duo-note warn">' + esc(nickOf(rejected.by)) + " 有不同想法：" + safeMd(rejected.text) + "</p>" : "") +
         '<div class="pr-block see"><label class="pr-q" for="relay-in">第 ' + leg + " 棒・" + prompts[0] + "</label>" +

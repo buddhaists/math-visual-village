@@ -422,7 +422,7 @@
   SK.topbar = function (base, isUnit) {
     var bar = SK.h("header", { class: "topbar" });
     bar.innerHTML = '<div class="wrap">' +
-      '<a class="brand" href="' + base + 'index.html">' + SK.icon("sprig") + "圖解數學小鎮</a>" +
+      '<a class="brand" href="' + base + 'index.html">' + SK.icon("sprig") + "圖解國中數學小鎮</a>" +
       "<nav>" +
       '<a class="nav-link" href="' + base + 'index.html#town">' + SK.icon("map") + '<span>地圖</span></a>' +
       '<a class="nav-link" href="' + base + 'practice/index.html">' + SK.icon("bulb") + '<span>解題</span></a>' +
@@ -437,7 +437,7 @@
     var f = SK.h("footer", { class: "site-foot" });
     f.innerHTML = '<div class="wrap"><div class="foot-row" aria-hidden="true">' + [0, 1, 2, 3, 1, 0].map(function (k) { return SK.botanical(k); }).join("") + "</div>" +
       '<p class="latin-hand">See it, then say it · A gentle way to learn math</p>' +
-      "<p>內容依據 108 課綱（高一共同必修、數學 A／B、選修數學甲／乙）整理；教學設計參考 Jo Boaler 的數學心態研究（youcubed）。</p>" +
+      "<p>內容依據 108 課綱國中數學（南一版 第一冊 1上 ～ 第六冊 3下）整理；教學設計參考 Jo Boaler 的數學心態研究（youcubed）。</p>" +
       '<p>有問題或建議？<a href="https://oneline-site.pages.dev/" target="_blank" rel="noopener noreferrer">聯絡我們</a></p></div>';
     return f;
   };
@@ -626,7 +626,7 @@
       '<div class="hero-formula sk-frame">' + SK.tex(cfg.formula, true) + "</div>" +
       '<div class="hero-meta">' + tracks + codes + "</div>" +
       (SK.renderHousePractice ? '<p><a class="btn small sky" href="#house-practice">這間小屋的練習 ' + SK.icon("arrow") + '</a></p>' : "") +
-      (meta.tracks.indexOf("X") >= 0 ? '<p class="beyond-note">' + SK.icon("leaf") + "這是<b>課綱外的補充單元</b>：不在考試範圍內，放在這裡是因為它能幫助理解正式內容，或值得欣賞。</p>" : "") +
+      
       '<div class="hero-deco">' + SK.bouquet() + "</div>";
     main.appendChild(hero);
 

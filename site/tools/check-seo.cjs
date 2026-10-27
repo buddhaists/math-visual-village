@@ -33,7 +33,7 @@ async function main() {
       pageCheck(html, origin + '/');
       const schema = JSON.parse(html.match(/<script type="application\/ld\+json" id="seo-schema">([\s\S]*?)<\/script>/)[1]);
       assert.equal(schema['@type'], 'WebSite');
-      assert.equal(schema.name, '圖解數學小鎮');
+      assert.equal(schema.name, '圖解國中數學小鎮 · 南一版');
       for (const u of units) assert(html.includes(`href="/units/${u.slug}"`), `missing link: ${u.slug}`);
     });
     for (const u of units) check(u.slug, () => pageCheck(fs.readFileSync(path.join(root, 'units', u.slug + '.html'), 'utf8'), `${origin}/units/${u.slug}`));
